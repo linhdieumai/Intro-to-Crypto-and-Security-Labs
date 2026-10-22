@@ -1,4 +1,4 @@
-# Lab 04 – Modes of Operation (Group XX)
+# Lab 04 – Modes of Operation (Group 05)
 
 ## Bảng phân công
 
