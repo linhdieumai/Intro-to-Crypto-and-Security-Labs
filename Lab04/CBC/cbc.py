@@ -38,13 +38,28 @@ def cbc_decrypt(key, ciphertext):
         prev = y
     return pkcs5_unpad(b"".join(out))
 
+def run(infile, outfile):
+    results = []
+    with open(infile) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            q, key_hex, ct_hex = line.split()
+            try:
+                pt = cbc_decrypt(bytes.fromhex(key_hex), bytes.fromhex(ct_hex))
+                text = pt.decode("utf-8", errors="replace")
+            except ValueError as e:
+                text = f"ERROR: {e}"
+            results.append((int(q), text))
+    with open(outfile, "w", encoding="utf-8") as f:
+        for q, text in results:
+            f.write(f"Question {q}: {text}\n")
+    return results
 
-if __name__ == '__main__':
-    infile, outfile = sys.argv[1], sys.argv[2]
-    with open(infile, 'r') as f:
-        key = bytes.fromhex(f.readline().strip())           
-        ciphertext = bytes.fromhex("".join(f.read().split()))  
-    decrypted = cbc_decrypt(key, ciphertext)
-    with open(outfile, 'wb') as f:
-        f.write(decrypted)
-    print(f"CBC: wrote {outfile}")
+
+if __name__ == "__main__":
+    infile = sys.argv[1] if len(sys.argv) > 1 else "input/cbc_input.txt"
+    outfile = sys.argv[2] if len(sys.argv) > 2 else "output/cbc_output.txt"
+    for q, text in run(infile, outfile):
+        print(f"Question {q}: {text}")

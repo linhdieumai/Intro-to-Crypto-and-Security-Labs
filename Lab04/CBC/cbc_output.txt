@@ -1,0 +1,4 @@
+Question 4: Basic CBC mode encryption needs padding.
+Question 5: Our implementation uses rand. IV
+Question 6: Never let a CBC IV be predictable to attackers.
+Question 7: Hello, SoICT!
