@@ -32,6 +32,34 @@ pip install pycryptodome
 
 ### Lệnh chạy
 
+```
+cd ECB
+python ecb.py ecb_input.txt ecb_output.txt
+```
+
+Nếu không truyền tham số, chương trình dùng mặc định `ecb_input.txt` và `ecb_output.txt`:
+```
+cd ECB
+python ecb.py
+```
+
+Plaintext được in ra màn hình và ghi vào `ecb_output.txt`:
+
+```
+Question 1: Basic CBC mode encryption needs padding.
+Question 2: Our implementation uses rand. IV
+Question 3: This is a secret message.
+```
+
+### Ghi chú cài đặt
+
+- ECB không dùng IV: ciphertext chính là `y₀ ‖ y₁ ‖ ...`, giải mã từng block bằng `Dec_k`.
+- Padding `10...0`: thêm byte `0x80` rồi `b−1` byte `0x00` (với `b = 16 − len mod 16`); **luôn thêm**, kể cả khi plaintext đã bội 16 (khi đó thêm cả block `0x80 00...00`).
+- Khi giải mã, kiểm tra padding: tìm byte `0x80` cuối cùng, mọi byte sau nó phải là `0x00`, và tổng số byte đệm ≤ 16. Padding sai hoặc độ dài ciphertext không phải bội 16 thì báo `ValueError` (in ra `ERROR: ...` cho câu đó).
+- ECB mang tính tất định (`xᵢ = xⱼ ⇒ yᵢ = yⱼ`) — chỉ dùng cho mục đích học tập, không dùng trong thực tế. Ở Câu 1, `y₀ = y₂` cho thấy pattern trong plaintext bị lộ.
+
+---
+
 ## CBC mode
 
 ### File
