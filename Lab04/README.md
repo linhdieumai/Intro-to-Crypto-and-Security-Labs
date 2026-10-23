@@ -96,6 +96,7 @@ Question 7: Hello, SoICT!
 
 - Padding sai hoặc độ dài ciphertext sai thì báo lỗi `ValueError` (in ra `ERROR: ...` cho câu đó).
 
+---
 ## CTR mode
 
 ### File
@@ -113,6 +114,7 @@ python ctr.py ctr_input.txt ctr_output.txt
 ```
 
 Nếu không truyền tham số, chương trình dùng mặc định `ctr_input.txt` và `ctr_output.txt`:
+```
 cd CTR
 python ctr.py
 ```
