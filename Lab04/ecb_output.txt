@@ -1,0 +1,3 @@
+Question 1: ECB is not safe.Really, I mean: ECB is not safe.
+Question 2: Tux is visible!
+Question 3: Transfer $1.00 from Oscar at bank A to bank B.

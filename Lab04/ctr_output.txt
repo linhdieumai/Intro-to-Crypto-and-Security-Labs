@@ -1,0 +1,4 @@
+Question 12: CTR mode lets you build a stream cipher from a block cipher.
+Question 13: Always avoid the two time pad!
+Question 14: A counter is a full 128-bit integer, so every carry must propagate.
+Question 15: Counters wrap around modulo 2^128.
