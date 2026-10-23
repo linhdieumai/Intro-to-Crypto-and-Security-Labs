@@ -55,7 +55,7 @@ Question 3: This is a secret message.
 - ECB không dùng IV: ciphertext chính là `y₀ ‖ y₁ ‖ ...`, giải mã từng block bằng `Dec_k`.
 - Padding `10...0`: thêm byte `0x80` rồi `b−1` byte `0x00` (với `b = 16 − len mod 16`); **luôn thêm**, kể cả khi plaintext đã bội 16 (khi đó thêm cả block `0x80 00...00`).
 - Khi giải mã, kiểm tra padding: tìm byte `0x80` cuối cùng, mọi byte sau nó phải là `0x00`, và tổng số byte đệm ≤ 16. Padding sai hoặc độ dài ciphertext không phải bội 16 thì báo `ValueError` (in ra `ERROR: ...` cho câu đó).
-- ECB mang tính tất định (`xᵢ = xⱼ ⇒ yᵢ = yⱼ`) — chỉ dùng cho mục đích học tập, không dùng trong thực tế. Ở Câu 1, `y₀ = y₂` cho thấy pattern trong plaintext bị lộ.
+- ECB mang tính tất định (`xᵢ = xⱼ ⇒ yᵢ = yⱼ`) - không được dùng trong thực tế. Ở Câu 1, `y₀ = y₂` cho thấy pattern trong plaintext bị lộ.
 
 ---
 
@@ -127,6 +127,6 @@ Question 15: All that is gold does not glitter; not all those who wander are los
 ### Ghi chú cài đặt
 - CTR không dùng padding: khối cuối có thể ngắn hơn 16 byte và chỉ XOR với đúng số byte keystream cần thiết. Ciphertext dài hơn plaintext đúng 16 byte (phần IV).
 - IV (16 byte đầu ciphertext) được xem là số nguyên **128-bit big-endian**; keystream block thứ `i` là `Enc_k(IV + i mod 2¹²⁸)`. Counter **không được gửi đi**, chỉ IV được ghi công khai ở đầu ciphertext.
-- Phải xử lý **counter 128-bit đầy đủ** và **mod 2¹²⁸** — Câu 14 (IV gần `0xFF...FF`) và Câu 15 (IV toàn `0xFF`, counter quay về 0 ngay block thứ 2) kiểm tra đúng điểm này.
+- Phải xử lý **counter 128-bit đầy đủ** và **mod 2¹²⁸** - Câu 14 (IV gần `0xFF...FF`) và Câu 15 (IV toàn `0xFF`, counter quay về 0 ngay block thứ 2) kiểm tra đúng điểm này.
 - Encrypt và decrypt dùng chung một hàm `ctr_crypt` (CTR đối xứng: `yᵢ = xᵢ ⊕ ksᵢ` và `xᵢ = yᵢ ⊕ ksᵢ`). Ciphertext ngắn hơn 16 byte (thiếu IV) thì báo `ValueError` (in ra `ERROR: ...` cho câu đó).
 ---
