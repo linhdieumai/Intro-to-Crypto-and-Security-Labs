@@ -18,7 +18,6 @@
 ```
 pip install pycryptodome
 ```
----
 
 ## ECB mode
 
@@ -96,3 +95,38 @@ Question 7: Hello, SoICT!
 ### Ghi chú cài đặt
 
 - Padding sai hoặc độ dài ciphertext sai thì báo lỗi `ValueError` (in ra `ERROR: ...` cho câu đó).
+
+## CTR mode
+
+### File
+
+| File | Nội dung |
+|---|---|
+| `CTR/ctr.py` | `ctr_encrypt`, `ctr_decrypt`, sinh keystream từ counter 128-bit (không dùng padding) |
+| `CTR/ctr_input.txt` | Câu 12–15, mỗi dòng: `<câu> <key hex> <ciphertext hex>`; dòng bắt đầu bằng `#` là chú thích |
+| `CTR/ctr_output.txt` | Plaintext giải ra (tạo khi chạy) |
+
+### Lệnh chạy
+```
+cd CTR
+python ctr.py ctr_input.txt ctr_output.txt
+```
+
+Nếu không truyền tham số, chương trình dùng mặc định `ctr_input.txt` và `ctr_output.txt`:
+cd CTR
+python ctr.py
+```
+Plaintext được in ra màn hình và ghi vào `ctr_output.txt`:
+```
+Question 12: CTR mode lets you build a stream cipher from a block cipher.
+Question 13: Always avoid the two time pad!
+Question 14: The Battle of Hastings, fought on 14 October 1066, is the event that famously began the Norman conquest of England.
+Question 15: All that is gold does not glitter; not all those who wander are lost...
+```
+
+### Ghi chú cài đặt
+- CTR không dùng padding: khối cuối có thể ngắn hơn 16 byte và chỉ XOR với đúng số byte keystream cần thiết. Ciphertext dài hơn plaintext đúng 16 byte (phần IV).
+- IV (16 byte đầu ciphertext) được xem là số nguyên **128-bit big-endian**; keystream block thứ `i` là `Enc_k(IV + i mod 2¹²⁸)`. Counter **không được gửi đi**, chỉ IV được ghi công khai ở đầu ciphertext.
+- Phải xử lý **counter 128-bit đầy đủ** và **mod 2¹²⁸** — Câu 14 (IV gần `0xFF...FF`) và Câu 15 (IV toàn `0xFF`, counter quay về 0 ngay block thứ 2) kiểm tra đúng điểm này.
+- Encrypt và decrypt dùng chung một hàm `ctr_crypt` (CTR đối xứng: `yᵢ = xᵢ ⊕ ksᵢ` và `xᵢ = yᵢ ⊕ ksᵢ`). Ciphertext ngắn hơn 16 byte (thiếu IV) thì báo `ValueError` (in ra `ERROR: ...` cho câu đó).
+---
