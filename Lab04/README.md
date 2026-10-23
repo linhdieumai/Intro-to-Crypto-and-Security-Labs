@@ -18,6 +18,19 @@
 ```
 pip install pycryptodome
 ```
+---
+
+## ECB mode
+
+### File
+
+| File | Nội dung |
+|---|---|
+| `ECB/ecb.py` | `ecb_encrypt`, `ecb_decrypt`, padding `10...0` (thêm / kiểm tra / gỡ) |
+| `ECB/ecb_input.txt` | Câu 1–3, mỗi dòng: `<câu> <key hex> <ciphertext hex>`; dòng bắt đầu bằng `#` là chú thích |
+| `ECB/ecb_output.txt` | Plaintext giải ra (tạo khi chạy) |
+
+### Lệnh chạy
 
 ## CBC mode
 
