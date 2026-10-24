@@ -32,14 +32,7 @@ pip install pycryptodome
 ### Lệnh chạy
 
 ```
-cd ECB
-python ecb.py ecb_input.txt ecb_output.txt
-```
-
-Nếu không truyền tham số, chương trình dùng mặc định `ecb_input.txt` và `ecb_output.txt`:
-```
-cd ECB
-python ecb.py
+python ECB\ecb.py lab04_questions.txt ECB\ecb_output.txt
 ```
 
 Plaintext được in ra màn hình và ghi vào `ecb_output.txt`:
@@ -178,15 +171,9 @@ Question 11: CFB recovers from a corrupted block after one more block.
 
 ### Lệnh chạy
 ```
-cd CTR
-python ctr.py ctr_input.txt ctr_output.txt
+python CTR\ctr.py lab04_questions.txt CTR\ctr_output.txt
 ```
 
-Nếu không truyền tham số, chương trình dùng mặc định `ctr_input.txt` và `ctr_output.txt`:
-```
-cd CTR
-python ctr.py
-```
 Plaintext được in ra màn hình và ghi vào `ctr_output.txt`:
 ```
 Question 12: CTR mode lets you build a stream cipher from a block cipher.
