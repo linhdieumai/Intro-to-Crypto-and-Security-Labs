@@ -1,0 +1,2 @@
+Question 8: OFB turns a block cipher into a synchronous stream cipher.
+Question 9: The OFB keystream never depends on the message.

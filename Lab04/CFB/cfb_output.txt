@@ -1,0 +1,2 @@
+Question 10: In CFB mode each ciphertext block feeds the next block.
+Question 11: CFB recovers from a corrupted block after one more block.
