@@ -72,15 +72,7 @@ Question 3: This is a secret message.
 ### Lệnh chạy
 
 ```
-cd CBC
-python cbc.py cbc_input.txt cbc_output.txt
-```
-
-Nếu không truyền tham số, chương trình dùng mặc định `cbc_input.txt` và `cbc_output.txt`:
-
-```
-cd CBC
-python cbc.py
+python CBC\cbc.py lab04_questions.txt CBC\cbc_output.txt
 ```
 
 Plaintext được in ra màn hình và ghi vào `cbc_output.txt`:
