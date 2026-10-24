@@ -97,6 +97,70 @@ Question 7: Hello, SoICT!
 - Padding sai hoặc độ dài ciphertext sai thì báo lỗi `ValueError` (in ra `ERROR: ...` cho câu đó).
 
 ---
+
+## OFB mode
+
+### File
+
+| File | Nội dung |
+| :--- | :--- |
+| `OFB/ofb.py` | Hàm `ofb_decrypt` |
+| `OFB/ofb_output.txt`| Plaintext giải ra (tạo khi chạy) |
+
+### Lệnh chạy
+
+```bash
+cd OFB
+python ofb.py lab04_questions.txt ofb_output.txt
+```
+
+Nếu không truyền tham số, chương trình dùng mặc định `lab04_questions.txt` và `ofb_output.txt`:
+
+```bash
+cd OFB
+python ofb.py
+```
+
+### Ghi chú cài đặt
+- OFB sử dụng một IV ngẫu nhiên dài 16-byte. IV này được đặt ở ngay trước các block ciphertext.   
+- Khi giải mã, hệ thống phải lấy IV từ phần đầu tiên của ciphertext.   
+- Chế độ OFB không sử dụng padding. Block cuối cùng có thể ngắn hơn 16 byte.   
+- Quá trình giải mã tái tạo lại cùng một keystream bằng cách tính $s_{i}=Enc_{k}(s_{i-1})$ với $s_{-1}=IV$. Bản rõ được tính ra thông qua công thức $x_{i}=y_{i}\oplus s_{i}$.   
+- Block cuối cùng (nếu ngắn) chỉ được XOR với số lượng byte tương ứng lấy từ đầu ra của hàm $Enc()$. Do đó, độ dài của ciphertext sẽ dài hơn plaintext chính xác 16 byte.   
+
+---
+
+## CFB mode
+
+### File
+
+| File | Nội dung |
+| :--- | :--- |
+| `CFB/cfb.py` | Hàm `cfb_decrypt` |
+| `CFB/cfb_output.txt`| Plaintext giải ra (tạo khi chạy) |
+
+### Lệnh chạy
+
+```bash
+cd CFB
+python cfb.py lab04_questions.txt cfb_output.txt
+```
+
+Nếu không truyền tham số, chương trình dùng mặc định `lab04_questions.txt` và `cfb_output.txt`:
+
+```bash
+cd CFB
+python cfb.py
+```
+
+### Ghi chú cài đặt
+- CFB sử dụng một IV ngẫu nhiên 16-byte. IV này được ghi dưới dạng rõ ở trước các block ciphertext.   
+- Chế độ CFB không sử dụng padding. Block cuối cùng của plaintext có thể ngắn hơn 16 byte.   
+- Quá trình mã hóa tính toán từng block bằng công thức $y_{i}=x_{i}\oplus Enc_{k}(y_{i-1})$ với $y_{-1}=IV$.   
+- Việc tự thiết kế và tìm ra cách thức giải mã cho chế độ này là một phần yêu cầu của bài thực hành.   
+- Block cuối cùng bị thiếu byte chỉ được XOR với đúng số lượng byte tương ứng của hàm $Enc()$. Ciphertext đầu ra có độ dài dài hơn plaintext chính xác 16 byte của IV.
+
+---
 ## CTR mode
 
 ### File
