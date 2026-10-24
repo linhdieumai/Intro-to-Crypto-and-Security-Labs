@@ -121,6 +121,13 @@ cd OFB
 python ofb.py
 ```
 
+Plaintext được in ra màn hình và ghi vào `ofb_output.txt`:
+
+```
+Question 8: OFB turns a block cipher into a synchronous stream cipher.
+Question 9: The OFB keystream never depends on the message.
+```
+
 ### Ghi chú cài đặt
 - OFB sử dụng một IV ngẫu nhiên dài 16-byte. IV này được đặt ở ngay trước các block ciphertext.   
 - Khi giải mã, hệ thống phải lấy IV từ phần đầu tiên của ciphertext.   
@@ -151,6 +158,12 @@ Nếu không truyền tham số, chương trình dùng mặc định `lab04_ques
 ```bash
 cd CFB
 python cfb.py
+```
+Plaintext được in ra màn hình và ghi vào `cfb_output.txt`:
+
+```
+Question 10: In CFB mode each ciphertext block feeds the next block.
+Question 11: CFB recovers from a corrupted block after one more block.
 ```
 
 ### Ghi chú cài đặt
