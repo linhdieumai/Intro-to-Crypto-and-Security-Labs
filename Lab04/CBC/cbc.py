@@ -59,7 +59,7 @@ def run(infile, outfile):
 
 
 if __name__ == "__main__":
-    infile = sys.argv[1] if len(sys.argv) > 1 else "input/cbc_input.txt"
-    outfile = sys.argv[2] if len(sys.argv) > 2 else "output/cbc_output.txt"
+    infile = sys.argv[1] if len(sys.argv) > 1 else "lab04_questions.txt"
+    outfile = sys.argv[2] if len(sys.argv) > 2 else "cbc_output.txt"
     for q, text in run(infile, outfile):
         print(f"Question {q}: {text}")
