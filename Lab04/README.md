@@ -8,7 +8,7 @@
 | Mai Thị Diệu Linh | 202416807 | CBC + padding PKCS5 | 4–7 | `CBC/` |
 | Nguyễn Minh Dũng | 202416682 | OFB | 8–9 | `OFB/` |
 | Nguyễn Minh Dũng | 202416682 | CFB | 10–11 | `CFB/` |
-| Đặng Thùy Minh | 202416807 | CTR | 12–15 | `CTR/` |
+| Đặng Thùy Minh | 202416808 | CTR | 12–15 | `CTR/` |
 
 ## Yêu cầu
 
@@ -26,7 +26,6 @@ pip install pycryptodome
 | File | Nội dung |
 |---|---|
 | `ECB/ecb.py` | `ecb_encrypt`, `ecb_decrypt`, padding `10...0` (thêm / kiểm tra / gỡ) |
-| `ECB/ecb_input.txt` | Câu 1–3, mỗi dòng: `<câu> <key hex> <ciphertext hex>`; dòng bắt đầu bằng `#` là chú thích |
 | `ECB/ecb_output.txt` | Plaintext giải ra (tạo khi chạy) |
 
 ### Lệnh chạy
@@ -38,9 +37,9 @@ python ECB\ecb.py lab04_questions.txt ECB\ecb_output.txt
 Plaintext được in ra màn hình và ghi vào `ecb_output.txt`:
 
 ```
-Question 1: Basic CBC mode encryption needs padding.
-Question 2: Our implementation uses rand. IV
-Question 3: This is a secret message.
+Question 1: ECB is not safe.Really, I mean: ECB is not safe.
+Question 2: Tux is visible!
+Question 3: Transfer $1.00 from Oscar at bank A to bank B.
 ```
 
 ### Ghi chú cài đặt
@@ -59,7 +58,6 @@ Question 3: This is a secret message.
 | File | Nội dung |
 |---|---|
 | `CBC/cbc.py` | `cbc_encrypt`, `cbc_decrypt`, padding PKCS5 (thêm / kiểm tra / gỡ) |
-| `CBC/cbc_input.txt` | Câu 4–7, mỗi dòng: `<câu> <key hex> <ciphertext hex>`; dòng bắt đầu bằng `#` là chú thích |
 | `CBC/cbc_output.txt` | Plaintext giải ra (tạo khi chạy) |
 
 ### Lệnh chạy
@@ -89,21 +87,13 @@ Question 7: Hello, SoICT!
 
 | File | Nội dung |
 | :--- | :--- |
-| `OFB/ofb.py` | Hàm `ofb_decrypt` |
+| `OFB/ofb.py` | Hàm `decrypt_ofb` |
 | `OFB/ofb_output.txt`| Plaintext giải ra (tạo khi chạy) |
 
 ### Lệnh chạy
 
 ```bash
-cd OFB
-python ofb.py lab04_questions.txt ofb_output.txt
-```
-
-Nếu không truyền tham số, chương trình dùng mặc định `lab04_questions.txt` và `ofb_output.txt`:
-
-```bash
-cd OFB
-python ofb.py
+python OFB\ofb.py lab04_questions.txt OFB\ofb_output.txt
 ```
 
 Plaintext được in ra màn hình và ghi vào `ofb_output.txt`:
@@ -128,22 +118,15 @@ Question 9: The OFB keystream never depends on the message.
 
 | File | Nội dung |
 | :--- | :--- |
-| `CFB/cfb.py` | Hàm `cfb_decrypt` |
+| `CFB/cfb.py` | Hàm `decrypt_cfb` |
 | `CFB/cfb_output.txt`| Plaintext giải ra (tạo khi chạy) |
 
 ### Lệnh chạy
 
 ```bash
-cd CFB
-python cfb.py lab04_questions.txt cfb_output.txt
+python CFB\cfb.py lab04_questions.txt CFB\cfb_output.txt
 ```
 
-Nếu không truyền tham số, chương trình dùng mặc định `lab04_questions.txt` và `cfb_output.txt`:
-
-```bash
-cd CFB
-python cfb.py
-```
 Plaintext được in ra màn hình và ghi vào `cfb_output.txt`:
 
 ```
@@ -178,8 +161,8 @@ Plaintext được in ra màn hình và ghi vào `ctr_output.txt`:
 ```
 Question 12: CTR mode lets you build a stream cipher from a block cipher.
 Question 13: Always avoid the two time pad!
-Question 14: The Battle of Hastings, fought on 14 October 1066, is the event that famously began the Norman conquest of England.
-Question 15: All that is gold does not glitter; not all those who wander are lost...
+Question 14: A counter is a full 128-bit integer, so every carry must propagate.
+Question 15: Counters wrap around modulo 2^128.
 ```
 
 ### Ghi chú cài đặt
