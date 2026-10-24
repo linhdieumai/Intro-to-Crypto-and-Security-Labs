@@ -1,5 +1,4 @@
 import sys, os
-from turtle import mode
 from Crypto.Cipher import AES
 
 def xor(a,b):
@@ -45,7 +44,9 @@ def run(infile, outfile):
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
-            q, key_hex, ct_hex = line.split()
+            q, mode, key_hex, ct_hex = line.split()   
+            if mode.upper() != "CBC":                 
+                continue
             try:
                 pt = cbc_decrypt(bytes.fromhex(key_hex), bytes.fromhex(ct_hex))
                 text = pt.decode("utf-8", errors="replace")
