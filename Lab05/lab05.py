@@ -1,7 +1,7 @@
 """IT4010E - Lab 05: Extended Euclidean Algorithm and Modular Inverse.
 
-Student name:
-Student ID:
+Student name: Đặng Thuỳ Minh, Mai Thị Diệu Linh, Nguyễn Minh Dũng
+Student ID:   202416808, 202416807, 202416682
 
 Rules: implement gcd, extended_euclid and mod_inv yourself.
 math.gcd and pow(a, -1, n) may only be used to CHECK your results.
@@ -40,11 +40,12 @@ def extended_euclid(a, b):
     old_y, y = 0, 1
 
     while r:
-        quotient = old_r // r
-        old_r, r = r, old_r - quotient * r
-        old_x, x = x, old_x - quotient * x
-        old_y, y = y, old_y - quotient * y
+        q = old_r // r
+        old_r, r = r, old_r - q * r
+        old_x, x = x, old_x - q * x
+        old_y, y = y, old_y - q * y
 
+    # The loop works on |a|, |b|; fix the signs so that a*x + b*y = d.
     if a < 0:
         old_x = -old_x
     if b < 0:
@@ -69,30 +70,41 @@ def mod_inv(a, n):
 # Task 3
 # ---------------------------------------------------------------------------
 def load_moduli(path="moduli.txt"):
-    with open(path, encoding="ascii") as moduli_file:
-        return [int(line) for line in moduli_file if line.strip()]
+    with open(path, encoding="ascii") as f:
+        return [int(line) for line in f if line.strip()]
 
 
-def find_shared_primes(moduli):
-    """Return a dict {index: p} for every N[index] that shares a prime p with another N."""
-    factors = batch_gcd(moduli)
-    shared = {}
+def pairwise_gcd(moduli, gcd_func=gcd):
+    """Compute gcd(N_i, N_j) for all i < j.
 
-    for index, (modulus, factor) in enumerate(zip(moduli, factors)):
-        if 1 < factor < modulus:
-            shared[index] = factor
+    Return (number_of_gcds, shares) where shares[i] is a list of
+    (j, g) with 1 < g = gcd(N_i, N_j).
+    """
+    n = len(moduli)
+    count = 0
+    shares = {}
+    for i in range(n):
+        for j in range(i + 1, n):
+            g = gcd_func(moduli[i], moduli[j])
+            count += 1
+            if g != 1:
+                shares.setdefault(i, []).append((j, g))
+                shares.setdefault(j, []).append((i, g))
+    return count, shares
+
+
+def factor_from_shares(moduli, shares):
+    """Return {i: (p, q, [indices sharing a prime])} with p * q = N_i."""
+    result = {}
+    for i, pairs in shares.items():
+        N = moduli[i]
+        p = next((g for _, g in pairs if 1 < g < N), None)
+        if p is None:          # N_i equal to some N_j: cannot split it this way
             continue
-
-        if factor == modulus:
-            for other_index, other_modulus in enumerate(moduli):
-                if other_index == index:
-                    continue
-                common_factor = gcd(modulus, other_modulus)
-                if 1 < common_factor < modulus:
-                    shared[index] = common_factor
-                    break
-
-    return shared
+        q = N // p
+        assert p * q == N and 1 < p < N
+        result[i] = (min(p, q), max(p, q), sorted(j for j, _ in pairs))
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -102,76 +114,132 @@ def product_tree(moduli):
     """Return the list of levels: [moduli, products of pairs, ..., [P]]."""
     if not moduli:
         return []
-
     levels = [list(moduli)]
     while len(levels[-1]) > 1:
-        current_level = levels[-1]
-        next_level = [
-            current_level[index] * current_level[index + 1]
-            for index in range(0, len(current_level) - 1, 2)
-        ]
-        if len(current_level) % 2:
-            next_level.append(current_level[-1])
-        levels.append(next_level)
+        cur = levels[-1]
+        nxt = [cur[k] * cur[k + 1] for k in range(0, len(cur) - 1, 2)]
+        if len(cur) % 2:
+            nxt.append(cur[-1])
+        levels.append(nxt)
     return levels
+
+
+def remainder_tree(levels):
+    """Top-down: each node v gets (parent remainder) mod v^2.
+
+    Return the leaves z_i = P mod N_i^2.
+    """
+    remainders = levels[-1][:]                      # root: P mod P^2 = P
+    for level in reversed(levels[:-1]):
+        remainders = [remainders[k // 2] % (v * v) for k, v in enumerate(level)]
+    return remainders
 
 
 def batch_gcd(moduli):
     """Return [g_1, ..., g_n] with g_i = gcd(N_i, product of all other N_j)."""
     if not moduli:
         return []
-    if any(modulus <= 0 for modulus in moduli):
-        raise ValueError("all moduli must be positive integers")
+    levels = product_tree(moduli)
+    leaves = remainder_tree(levels)
+    return [gcd(z // N, N) for z, N in zip(leaves, moduli)]
 
-    total_product = product_tree(moduli)[-1][0]
-    result = []
-    for modulus in moduli:
-        product_remainder = total_product % (modulus * modulus)
-        other_product = product_remainder // modulus
-        result.append(gcd(modulus, other_product))
+
+def factor_with_batch(moduli):
+    """Factor every N_i found by batch GCD.
+
+    If g_i == N_i (both primes of N_i are shared), fall back to
+    gcd(N_i, N_j) with the other moduli to split N_i (Question 4).
+    """
+    result = {}
+    for i, (N, g) in enumerate(zip(moduli, batch_gcd(moduli))):
+        if g == 1:
+            continue
+        if g == N:
+            g = next((h for j, M in enumerate(moduli)
+                      if j != i and 1 < (h := gcd(N, M)) < N), None)
+            if g is None:
+                continue
+        p, q = sorted((g, N // g))
+        assert p * q == N
+        result[i] = (p, q)
     return result
 
 
+def short(x, k=12):
+    s = str(x)
+    return s if len(s) <= 2 * k + 3 else f"{s[:k]}...{s[-k:]}"
+
+
 if __name__ == "__main__":
-    # Task 1: small tests
-    print(extended_euclid(99, 78))     # expected (3, -11, 14)
-    print(extended_euclid(899, 493))   # expected (29, -6, 11)
-
-    # Task 1 and 2: timing table for large numbers
     rng = random.Random(2025)
-    print("\nTiming (average microseconds per call)")
-    print(f"{'bits':>6} {'gcd':>12} {'extended Euclid':>18} {'mod inverse':>14}")
-    for bits in (256, 512, 1024, 2048):
-        modulus = rng.getrandbits(bits) | 1
-        value = rng.randrange(2, modulus)
-        while gcd(value, modulus) != 1:
-            value = rng.randrange(2, modulus)
 
-        _, gcd_time = timed(gcd, value, modulus, reps=100)
-        _, euclid_time = timed(extended_euclid, value, modulus, reps=100)
-        inverse, inverse_time = timed(mod_inv, value, modulus, reps=100)
-        assert gcd(value, modulus) == math.gcd(value, modulus)
-        assert (value * inverse) % modulus == 1
-        print(
-            f"{bits:>6} {gcd_time * 1e6:>12.2f} "
-            f"{euclid_time * 1e6:>18.2f} {inverse_time * 1e6:>14.2f}"
-        )
+    # ---------------- Task 1 ----------------
+    print("Task 1")
+    print("extended_euclid(99, 78)   =", extended_euclid(99, 78))
+    print("extended_euclid(899, 493) =", extended_euclid(899, 493))
+    assert extended_euclid(99, 78) == (3, -11, 14)
+    assert extended_euclid(899, 493) == (29, -6, 11)
 
-    # Task 3: factor the numbers in moduli.txt that share a prime
-    moduli_path = Path(__file__).with_name("moduli.txt")
-    moduli = load_moduli(moduli_path)
-    shared_primes = find_shared_primes(moduli)
-    print(f"\nShared-prime moduli: {len(shared_primes)} of {len(moduli)}")
-    for index, prime in sorted(shared_primes.items()):
-        modulus = moduli[index]
-        print(f"N[{index}] = {prime} * {modulus // prime}")
+    # ---------------- Task 1 + 2: timing table ----------------
+    print("\nTiming (average of 20 repetitions, milliseconds)")
+    print(f"{'bits':>6} {'extended_euclid':>16} {'mod_inv':>10} {'pow(a,-1,n)':>12}")
+    for bits in (512, 1024, 2048, 4096, 8192):
+        n = rng.getrandbits(bits) | (1 << (bits - 1)) | 1
+        a = rng.getrandbits(bits) | (1 << (bits - 1))
+        while math.gcd(a, n) != 1:
+            a = rng.getrandbits(bits) | (1 << (bits - 1))
 
-    # Bonus: check batch_gcd([21, 33, 65, 323]) == [3, 3, 1, 1], then run it on moduli.txt
+        (d, x, y), t_ee = timed(extended_euclid, a, n, reps=20)
+        assert a * x + n * y == d == math.gcd(a, n)
+        inv, t_inv = timed(mod_inv, a, n, reps=20)
+        inv_ref, t_pow = timed(pow, a, -1, n, reps=20)
+        assert inv == inv_ref and a * inv % n == 1
+        print(f"{bits:>6} {t_ee*1e3:>16.3f} {t_inv*1e3:>10.3f} {t_pow*1e3:>12.3f}")
+
+    # ---------------- Task 2: Mersenne prime, mod_inv vs Fermat ----------------
+    p = 2**2203 - 1
+    a = rng.getrandbits(2000) | (1 << 1999)
+    inv1, t1 = timed(mod_inv, a, p, reps=20)
+    inv2, t2 = timed(pow, a, p - 2, p, reps=20)
+    assert inv1 == inv2 and a * inv1 % p == 1
+    print("\nTask 2: inverse of a random 2000-bit a modulo p = 2^2203 - 1 (20 reps)")
+    print(f"  mod_inv(a, p)     : {t1*1e3:8.3f} ms")
+    print(f"  pow(a, p - 2, p)  : {t2*1e3:8.3f} ms   (Fermat is {t2/t1:.1f}x slower)")
+
+    # ---------------- Task 3: pairwise gcd ----------------
+    moduli = load_moduli(Path(__file__).with_name("moduli.txt"))
+    print(f"\nTask 3: {len(moduli)} moduli loaded")
+
+    start = time.perf_counter()
+    n_gcd, shares = pairwise_gcd(moduli, gcd)
+    t_own = time.perf_counter() - start
+    print(f"  own gcd  : {n_gcd} gcds in {t_own:.3f} s "
+          f"({t_own / n_gcd * 1e6:.1f} us per gcd)")
+
+    start = time.perf_counter()
+    n_gcd2, shares2 = pairwise_gcd(moduli, math.gcd)
+    t_math = time.perf_counter() - start
+    print(f"  math.gcd : {n_gcd2} gcds in {t_math:.3f} s "
+          f"({t_math / n_gcd2 * 1e6:.1f} us per gcd)")
+    assert shares == shares2
+
+    factored = factor_from_shares(moduli, shares)
+    print(f"\n  Moduli that share a prime: {len(factored)}")
+    for i, (pp, qq, others) in sorted(factored.items()):
+        print(f"  N[{i}] shares a prime with {others}")
+        print(f"      p = {pp}")
+        print(f"      q = {qq}")
+
+    # ---------------- Bonus: batch GCD ----------------
     sample = [21, 33, 65, 323]
-    expected = [3, 3, 1, 1]
-    sample_gcds = batch_gcd(sample)
-    assert sample_gcds == expected, (sample_gcds, expected)
+    assert batch_gcd(sample) == [3, 3, 1, 1], batch_gcd(sample)
+    print("\nBonus: batch_gcd([21, 33, 65, 323]) =", batch_gcd(sample))
 
-    dataset_gcds = batch_gcd(moduli)
-    print(f"\nBatch GCD completed for {len(dataset_gcds)} moduli.")
-    print(f"Moduli with a non-trivial shared factor: {sum(value > 1 for value in dataset_gcds)}")
+    start = time.perf_counter()
+    batch_factored = factor_with_batch(moduli)
+    t_batch = time.perf_counter() - start
+    assert set(batch_factored) == set(factored)
+    assert all(batch_factored[i] == factored[i][:2] for i in factored)
+    print(f"  batch GCD on moduli.txt: {len(batch_factored)} moduli factored in "
+          f"{t_batch:.3f} s (same as Task 3)")
+    print(f"  speed-up vs pairwise own gcd: {t_own / t_batch:.1f}x")
