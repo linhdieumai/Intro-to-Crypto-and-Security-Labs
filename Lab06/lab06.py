@@ -42,21 +42,21 @@ def poly_mulmod(a,b,mod):
 def poly_ext_euclid(a,b):
     if b == 0:
         return (a, 1, 0)
-    else:
-        d, x1, y1 = poly_ext_euclid(b, a % b)
-        x = y1
-        y = x1 ^ poly_mul((a // b), y1)
-        return (d, x, y)
+    q,r = poly_divmod(a,b)
+    d, x1, y1 = poly_ext_euclid(b,r)
+    return (d, y1, x1 ^ poly_mul(q, y1))
 
 def poly_inv(a,P):
     d, x, y = poly_ext_euclid(a, P)
     if d != 1:
         raise ValueError(f"{a} has no inverse mod {P}")
     else:
-        return x % P
+        return poly_mulmod(x, 1, P)
 
 def inverse_table(P):
-    table = [0] * P
-    for a in range(1, P):
-        table[a] = poly_inv(a, P)
-    return table
+    t = [0] * (1 << (P.bit_length()-1))
+    for a in range(1,1<<(P.bit_length()-1)):
+        t[a] = poly_inv(a, P)
+    return t
+
+
