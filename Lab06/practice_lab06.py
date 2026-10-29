@@ -1,6 +1,4 @@
-from lab06 import (extended_euclid, mod_inv,
-                   poly_mul, poly_divmod, poly_mulmod, poly_ext_euclid,
-                   poly_inv, inverse_table)
+from lab06 import (extended_euclid, poly_mul, poly_ext_euclid)
 
 AES, GF512, R101 = 0x11B, 0x211, 0x101
 GCM = (1 << 128) | 0x87
