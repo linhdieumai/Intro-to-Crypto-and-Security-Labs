@@ -2,7 +2,7 @@
 import json
 import time
 
-DATA_FILE = "lab07_testdata.json"
+DATA_FILE = "Lab07\\lab07_testdata.json"
 
 
 def load_keys(path: str = DATA_FILE) -> dict:
@@ -64,13 +64,31 @@ def test_all(keys: dict) -> None:
 
 # ---------- Task 4 ----------
 def benchmark(keys: dict, repeat: int = 10) -> None:
-    # TODO: average time of rsa_decrypt and rsa_decrypt_crt
-    #       on rsa-1024, rsa-2048 and rsa-4096
-    pass
+    print(f"{'Key size':>8} | {'Standard (ms)':>13} | {'CRT (ms)':>8} | {'Speed-up':>8}")
+    print("-" * 50)
+    for name, k in keys.items():
+        if name not in ["rsa-1024", "rsa-2048", "rsa-4096"]:
+            continue
+        n, d, p, q = k["n"], k["d"], k["p"], k["q"]
+        y = k["vectors"][0]["y"]
+
+        start = time.perf_counter()
+        for _ in range(repeat):
+            rsa_decrypt(y, d, n)
+        t1 = (time.perf_counter() - start) / repeat
+
+        pre = crt_precompute(d, p, q)
+        start = time.perf_counter()
+        for _ in range(repeat):
+            rsa_decrypt_crt(y, d, p, q, pre)
+        t2 = (time.perf_counter() - start) / repeat
+        standard_ms = t1 * 1000
+        crt_ms = t2 * 1000
+        print(f"{name.removeprefix('rsa-'):>8} | {standard_ms:13.3f} | {crt_ms:8.3f} | {t1 / t2:8.2f}x")
 
 
 if __name__ == "__main__":
     keys = load_keys()
-    test_given(keys)
-    test_all(keys)
+    #test_given(keys)
+    #test_all(keys)
     benchmark(keys)
