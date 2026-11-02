@@ -90,3 +90,9 @@ if __name__ == "__main__":
         if name.startswith("test_"):
             fn()
             print(f"{name:28s} PASSED")
+    
+    print("\nA1 table")
+    extended_euclid(5, 12, show_table=True)
+
+    print("\nB2 table")
+    poly_ext_euclid(0x53, 0x11B, show_table=True)
