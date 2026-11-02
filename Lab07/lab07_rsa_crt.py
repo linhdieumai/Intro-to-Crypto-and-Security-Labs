@@ -13,8 +13,7 @@ def load_keys(path: str = DATA_FILE) -> dict:
 # ---------- Task 1 ----------
 def rsa_decrypt(y: int, d: int, n: int) -> int:
     """Standard RSA decryption: y^d mod n."""
-    # TODO
-    raise NotImplementedError
+    return pow(y,d,n)
 
 
 # ---------- Task 2 ----------
