@@ -60,3 +60,4 @@ def inverse_table(P):
     return t
 
 
+print()
