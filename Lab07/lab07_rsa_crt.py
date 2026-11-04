@@ -2,7 +2,7 @@
 import json
 import time
 
-DATA_FILE = "lab07_testdata.json"
+DATA_FILE = "Lab07\\lab07_testdata.json"
 
 
 def load_keys(path: str = DATA_FILE) -> dict:
