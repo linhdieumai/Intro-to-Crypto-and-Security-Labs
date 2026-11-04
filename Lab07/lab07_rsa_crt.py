@@ -97,18 +97,20 @@ def benchmark(keys: dict, repeat: int = 10) -> None:
         if name not in ["rsa-1024", "rsa-2048", "rsa-4096"]:
             continue
         n, d, p, q = k["n"], k["d"], k["p"], k["q"]
-        y = k["vectors"][0]["y"]
-
-        start = time.perf_counter()
-        for _ in range(repeat):
-            rsa_decrypt(y, d, n)
-        t1 = (time.perf_counter() - start) / repeat
-
+        ys = [v["y"] for v in k["vectors"]]
         pre = crt_precompute(d, p, q)
+ 
         start = time.perf_counter()
         for _ in range(repeat):
-            rsa_decrypt_crt(y, d, p, q, pre)
-        t2 = (time.perf_counter() - start) / repeat
+            for y in ys:
+                rsa_decrypt(y, d, n)
+        t1 = (time.perf_counter() - start) / (repeat * len(ys))
+ 
+        start = time.perf_counter()
+        for _ in range(repeat):
+            for y in ys:
+                rsa_decrypt_crt(y, d, p, q, pre)
+        t2 = (time.perf_counter() - start) / (repeat * len(ys))
         standard_ms = t1 * 1000
         crt_ms = t2 * 1000
         print(f"{name.removeprefix('rsa-'):>8} | {standard_ms:13.3f} | {crt_ms:8.3f} | {t1 / t2:8.2f}x")

@@ -1,4 +1,4 @@
-# Lab 04 – Modes of Operation (Group 05)
+# Lab 07 – RSA Decryption with the CRT (Group 05)
 
 ## Bảng phân công
 
@@ -8,25 +8,57 @@
 | Mai Thị Diệu Linh | 202416807 | Task 1 + Task 4 |
 | Nguyễn Minh Dũng | 202416682 | Task 2 |
 
+Chạy: `python3 lab07_rsa_crt.py` (file `lab07_testdata.json` đặt cùng thư mục).
 
 ## Test results
-- xp = 9, xq = 11
-- cp = 6, cq = 6
-- x  = 141
+
+### Small primes – toy-143 (p = 11, q = 13, e = 7, d = 103, y = 15)
+
+| Quantity | Value |
+|---|---|
+| yp, yq | 4, 2 |
+| dp, dq | 3, 7 |
+| xp, xq | 9, 11 |
+| cp, cq | 6, 6 |
+| x | 141 |
+
+All values match the worked example table.
+
+### Large primes – given-190 (exercise ciphertext y = 12345678901234567890)
+
 - x (standard) = 324309952877571399564352792629998816095895977177801581031
 - x (CRT)      = 324309952877571399564352792629998816095895977177801581031
 - check x^e mod n == y: True
+
+### All keys in `lab07_testdata.json`
+
+`crt_precompute` returns the `crt` field of every key, and both functions return the expected x:
+
 - toy-143: 8/8 vectors OK
 - given-190: 1/1 vectors OK
 - rsa-1024: 10/10 vectors OK
 - rsa-2048: 10/10 vectors OK
 - rsa-4096: 10/10 vectors OK
-    
-## Timing tables
 
-|Key size | Standard (ms) | CRT (ms) | Speed-up |
+## Timing table (Task 4)
+
+Average time per decryption: 10 ciphertexts × 10 repetitions = 100 decryptions per method,
+CRT with precomputed (dp, dq, cp, cq), measured with `time.perf_counter()`.
+
+| Key size | Standard (ms) | CRT (ms) | Speed-up |
 |---|---|---|---|
-| 1024 | 0.028 | 0.031 | 0.88x |
-| 2048 | 0.054 | 0.060 | 0.91x |
-| 4096 | 0.106 | 0.192 | 0.55x |
+| 1024 | 2.582 | 1.074 | 2.40x |
+| 2048 | 18.568 | 4.223 | 4.40x |
+| 4096 | 139.141 | 30.135 | 4.62x |
 
+### Comparison with the expected speed-up of 4
+
+The CRT method is clearly faster for every key size, and the gain grows with the key size.
+For 2048 and 4096 bits the measured speed-up (about 4.4–4.6x) is close to the theoretical
+value of 4, because each of the two exponentiations works with a modulus and an exponent of
+half the size. For 1024 bits the speed-up is lower (about 2.4x): the numbers are small, so the
+fixed costs of Steps 1 and 3 and of the Python function calls are a larger share of the total.
+The measured values can be a little above or below 4 because Python's big-integer arithmetic
+does not follow the schoolbook k³ cost exactly, and timings vary slightly between runs and
+machines. The edge-case vectors (x = 0, x = 1) are cheap for both methods and slightly lower
+the average times.
