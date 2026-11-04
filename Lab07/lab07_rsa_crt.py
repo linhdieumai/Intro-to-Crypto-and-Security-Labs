@@ -2,7 +2,7 @@
 import json
 import time
 
-DATA_FILE = "Lab07\\lab07_testdata.json"
+DATA_FILE = "lab07_testdata.json"
 
 
 def load_keys(path: str = DATA_FILE) -> dict:
@@ -19,8 +19,11 @@ def rsa_decrypt(y: int, d: int, n: int) -> int:
 # ---------- Task 2 ----------
 def crt_precompute(d: int, p: int, q: int) -> tuple[int, int, int, int]:
     """Return (dp, dq, cp, cq)."""
-    # TODO
-    raise NotImplementedError
+    dp = d % (p - 1)
+    dq = d % (q - 1)
+    cp = pow(q, -1, p)
+    cq = pow(p, -1, q)
+    return (dp, dq, cp, cq)
 
 
 def rsa_decrypt_crt(y: int, d: int, p: int, q: int, pre=None) -> int:
@@ -28,12 +31,36 @@ def rsa_decrypt_crt(y: int, d: int, p: int, q: int, pre=None) -> int:
     if pre is None:
         pre = crt_precompute(d, p, q)
     dp, dq, cp, cq = pre
-    # Step 1: transformation to the CRT domain
-    # Step 2: exponentiation in the CRT domain
-    # Step 3: inverse transformation (recombination)
-    # TODO
-    raise NotImplementedError
 
+    # Step 1: transformation to the CRT domain
+    yp = y % p
+    yq = y % q
+
+    # Step 2: exponentiation in the CRT domain
+    xp = pow(yp, dp, p)
+    xq = pow(yq, dq, q)
+
+    # Step 3: inverse transformation (recombination)
+    n = p * q
+    x = (q * cp * xp + p * cq * xq) % n
+    return x
+
+def test_toy(keys: dict) -> None:
+    k = keys["toy-143"]
+    d, p, q, n = k["d"], k["p"], k["q"], k["n"]
+    y = 15
+    dp, dq, cp, cq = crt_precompute(d, p, q)
+    yp = y % p
+    yq = y % q
+    xp = pow(yp, dp, p)
+    xq = pow(yq, dq, q)
+    x = (q * cp * xp + p * cq * xq) % n
+    print(f"--- Worked Example (toy-143, y = {y}) ---")
+    print(f"yp = {yp}, yq = {yq}")
+    print(f"dp = {dp}, dq = {dq}")
+    print(f"xp = {xp}, xq = {xq}")
+    print(f"cp = {cp}, cq = {cq}")
+    print(f"x  = {x}")
 
 # ---------- Task 3 ----------
 def test_given(keys: dict) -> None:
@@ -89,6 +116,7 @@ def benchmark(keys: dict, repeat: int = 10) -> None:
 
 if __name__ == "__main__":
     keys = load_keys()
-    #test_given(keys)
-    #test_all(keys)
+    test_toy(keys)
+    test_given(keys)
+    test_all(keys)
     benchmark(keys)
