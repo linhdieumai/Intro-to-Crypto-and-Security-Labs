@@ -21,11 +21,12 @@
 - rsa-1024: 10/10 vectors OK
 - rsa-2048: 10/10 vectors OK
 - rsa-4096: 10/10 vectors OK
+    
+## Timing tables
+
 |Key size | Standard (ms) | CRT (ms) | Speed-up |
 |---|---|---|---|
 | 1024 | 0.028 | 0.031 | 0.88x |
 | 2048 | 0.054 | 0.060 | 0.91x |
 | 4096 | 0.106 | 0.192 | 0.55x |
-    
-## Timing tables
 
