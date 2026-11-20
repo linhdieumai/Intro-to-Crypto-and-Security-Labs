@@ -17,6 +17,7 @@ the tests in test_elgamal.py rely on them.
 
 import nacl.bindings as sodium
 from nacl.exceptions import CryptoError
+from pathlib import Path
 
 from group import ELEMENT_BYTES, exp, exp_g, is_valid_element, random_exponent
 
@@ -27,7 +28,12 @@ MAC_BYTES = sodium.crypto_secretbox_MACBYTES      # 16
 
 def keygen() -> tuple[bytes, bytes]:
     """Return (pk, sk) with sk = a random and pk = h = g^a."""
-    raise NotImplementedError("TODO (Task 2)")
+    a = random_exponent()
+    sk = a
+    h = exp_g(a)
+    if not is_valid_element(h) or len(h) != ELEMENT_BYTES or len(sk) != ELEMENT_BYTES:
+        raise ValueError("Invalid key generation")
+    return h, sk
 
 
 def H(u: bytes, v: bytes) -> bytes:
@@ -35,7 +41,9 @@ def H(u: bytes, v: bytes) -> bytes:
 
     Use sodium.crypto_hash_sha256.
     """
-    raise NotImplementedError("TODO (Task 3)")
+    if len(u) != ELEMENT_BYTES or len(v) != ELEMENT_BYTES or not is_valid_element(u) or not is_valid_element(v):
+        raise ValueError("Invalid input to H")
+    return sodium.crypto_hash_sha256(b"".join([u, v]))
 
 
 def E_s(k: bytes, m: bytes) -> bytes:
@@ -43,7 +51,10 @@ def E_s(k: bytes, m: bytes) -> bytes:
 
     Use sodium.crypto_secretbox_easy with the constant NONCE.
     """
-    raise NotImplementedError("TODO (Task 3)")
+    try:
+        return sodium.crypto_secretbox_easy(m, NONCE, k)
+    except CryptoError:
+        raise ValueError("Encryption failed")   
 
 
 def D_s(k: bytes, c: bytes) -> bytes:
@@ -52,20 +63,31 @@ def D_s(k: bytes, c: bytes) -> bytes:
     Use sodium.crypto_secretbox_open_easy with the constant NONCE.
     Raise ValueError if libsodium rejects c (it raises CryptoError).
     """
-    raise NotImplementedError("TODO (Task 3)")
-
+    try:
+        return sodium.crypto_secretbox_open_easy(c, NONCE, k)
+    except CryptoError:
+        raise ValueError("Decryption failed")   
 
 def encrypt(pk: bytes, m: bytes, b: bytes | None = None) -> bytes:
     """Return the ciphertext u || c  (32 bytes of u followed by c).
+
 
     If b is None, choose the ephemeral exponent b at random.  The parameter
     b exists only for the experiments and the known-answer tests: real code
     must never let the caller choose it.
 
+
     Raise ValueError if pk is not a valid group element.
     """
-    raise NotImplementedError("TODO (Task 3)")
-
+    if not is_valid_element(pk):
+        raise ValueError("Invalid public key")
+    if b is None:
+        b = random_exponent()
+    u = exp_g(b)
+    v = exp(pk, b)
+    k = H(u, v)
+    c = E_s(k, m)
+    return u + c
 
 def decrypt(sk: bytes, ct: bytes) -> bytes:
     """Return the plaintext of ct = u || c.
@@ -73,4 +95,19 @@ def decrypt(sk: bytes, ct: bytes) -> bytes:
     Raise ValueError if ct is too short, if u is not a valid group element,
     or if the symmetric decryption fails.
     """
-    raise NotImplementedError("TODO (Task 4)")
+    if len(ct) < ELEMENT_BYTES:
+        raise ValueError("Ciphertext is too short")
+    u = ct[:ELEMENT_BYTES]
+    c = ct[ELEMENT_BYTES:]
+    if not is_valid_element(u):
+        raise ValueError("Invalid ciphertext")
+    v = exp(u, sk)
+    k = H(u, v)
+    m = D_s(k, c)
+    return m
+if __name__ == "__main__":
+    mystery_path = Path(__file__).with_name("mystery.txt")
+    lines = mystery_path.read_text(encoding="utf-8").splitlines()
+    sk = bytes.fromhex(lines[0].split("=", 1)[1].strip())
+    ct = bytes.fromhex(lines[1].split("=", 1)[1].strip())
+    print(decrypt(sk, ct).decode("utf-8"))
