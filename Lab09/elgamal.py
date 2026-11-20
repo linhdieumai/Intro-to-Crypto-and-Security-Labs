@@ -17,7 +17,6 @@ the tests in test_elgamal.py rely on them.
 
 import nacl.bindings as sodium
 from nacl.exceptions import CryptoError
-from pathlib import Path
 
 from group import ELEMENT_BYTES, exp, exp_g, is_valid_element, random_exponent
 
@@ -101,13 +100,8 @@ def decrypt(sk: bytes, ct: bytes) -> bytes:
     c = ct[ELEMENT_BYTES:]
     if not is_valid_element(u):
         raise ValueError("Invalid ciphertext")
-    v = exp(u, sk)
+    v = exp(sk, 1)  
     k = H(u, v)
     m = D_s(k, c)
     return m
-if __name__ == "__main__":
-    mystery_path = Path(__file__).with_name("mystery.txt")
-    lines = mystery_path.read_text(encoding="utf-8").splitlines()
-    sk = bytes.fromhex(lines[0].split("=", 1)[1].strip())
-    ct = bytes.fromhex(lines[1].split("=", 1)[1].strip())
-    print(decrypt(sk, ct).decode("utf-8"))
+
