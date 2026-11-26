@@ -94,14 +94,13 @@ def decrypt(sk: bytes, ct: bytes) -> bytes:
     Raise ValueError if ct is too short, if u is not a valid group element,
     or if the symmetric decryption fails.
     """
-    if len(ct) < ELEMENT_BYTES:
+    if len(ct) < ELEMENT_BYTES + MAC_BYTES:
         raise ValueError("Ciphertext is too short")
     u = ct[:ELEMENT_BYTES]
     c = ct[ELEMENT_BYTES:]
     if not is_valid_element(u):
         raise ValueError("Invalid ciphertext")
-    v = exp(sk, 1)  
+    v = exp(u, sk)
     k = H(u, v)
     m = D_s(k, c)
     return m
-

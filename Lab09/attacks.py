@@ -10,7 +10,10 @@ def reuse_attack(ct1: bytes, ct2: bytes, m1: bytes) -> bytes:
     for the same public key and the same b.  The plaintext m1 of ct1 is
     known, and m2 has the same length as m1.  No key is available.
     """
-    raise NotImplementedError("TODO (Task 5.1)")
+    header_len = 48
+    c1_payload = ct1[header_len:]
+    c2_payload = ct2[header_len:]
+    return bytes(b1 ^ b2 ^ p1 for b1, b2, p1 in zip(c1_payload, c2_payload, m1))
 
 
 def double_message(ct: tuple[int, int]) -> tuple[int, int]:
@@ -18,4 +21,6 @@ def double_message(ct: tuple[int, int]) -> tuple[int, int]:
 
     No key is available.
     """
-    raise NotImplementedError("TODO (Task 5.2)")
+    B, c = ct
+    p = getattr(textbook, "P", getattr(textbook, "p", 467))
+    return (B, (2 * c) % p)
